@@ -318,7 +318,14 @@ class static_str {
 
   constexpr std::uint16_t size() const noexcept { return N; }
 
-  constexpr operator string_view() const noexcept { return {data(), size()}; }
+  // MSVC C++20/23 module compatibility: explicit conversion method
+  [[nodiscard]] constexpr string_view str() const noexcept { 
+      return string_view(data(), size()); 
+  }
+
+  #if !defined(MAGIC_ENUM_USE_STD_MODULE) || !defined(_MSC_VER)
+  constexpr operator string_view() const noexcept { return str(); }
+  #endif
 
  private:
   template <std::uint16_t... I>
